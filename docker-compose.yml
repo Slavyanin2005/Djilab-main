@@ -35,6 +35,17 @@ services:
     networks:
       - djilab-network
 
+  redis:
+    image: redis:7-alpine
+    container_name: djilab-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - C:/redis-data:/data
+    networks:
+      - djilab-network
+    command: redis-server --appendonly yes
+
   backend:
     build: ../Djilab-backend
     container_name: djilab-backend
@@ -45,6 +56,8 @@ services:
         condition: service_healthy
       minio:
         condition: service_started
+      redis:
+        condition: service_started
     environment:
       - DEBUG=True
       - SECRET_KEY=django-insecure-lab1-secret-key-change-in-production
@@ -53,6 +66,7 @@ services:
       - DB_PASSWORD=Dflbv2005
       - DB_HOST=postgres
       - DB_PORT=5432
+      - REDIS_URL=redis://redis:6379/1
     volumes:
       - ../Djilab-backend:/app
     networks:
