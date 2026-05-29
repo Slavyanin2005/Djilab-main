@@ -42,10 +42,9 @@ services:
       - "6379:6379"
     volumes:
       - C:/redis-data:/data
-      - ./redis.conf:/usr/local/etc/redis/redis.conf  # ✅ Монтируем конфиг
+      - ./redis.conf:/usr/local/etc/redis/redis.conf
     networks:
       - djilab-network
-    # ✅ ИСПРАВЛЕНО: указываем путь к конфиг-файлу
     command: redis-server /usr/local/etc/redis/redis.conf
 
   backend:
@@ -73,18 +72,19 @@ services:
       - ../Djilab-backend:/app
     networks:
       - djilab-network
-    command: python manage.py runserver 0.0.0.0:8000
+    command: python run_https.py
 
   frontend:
     build: ../Djilab-frontend
     container_name: djilab-frontend
     ports:
       - "5173:5173"
+      - "4173:4173"
     volumes:
       - ../Djilab-frontend:/app
       - /app/node_modules
     environment:
-      - VITE_API_URL=http://localhost:8000/api
+      - VITE_API_URL=https://192.168.0.107:8000/api
     networks:
       - djilab-network
     command: npm run dev -- --host 0.0.0.0
